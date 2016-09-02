@@ -474,20 +474,25 @@ namespace :pl do
         end
       end
 
-      Pkg::Util::Execution.retry_on_fail(:times => 3) do
-        Pkg::Util::Net.remote_ssh_cmd(Pkg::Config.distribution_server, "mkdir --mode=775 -p #{project_basedir}")
-        Pkg::Util::Net.remote_ssh_cmd(Pkg::Config.distribution_server, "mkdir -p #{artifact_dir}")
-        Pkg::Util::Net.rsync_to("#{local_dir}/", Pkg::Config.distribution_server, "#{artifact_dir}/", extra_flags: ["--ignore-existing", "--exclude repo_configs"])
-      end
+      case Pkg::Config.cinext_storage
+        when 'ceph'
+        when 'swift'
+        else
+          Pkg::Util::Execution.retry_on_fail(:times => 3) do
+            Pkg::Util::Net.remote_ssh_cmd(Pkg::Config.distribution_server, "mkdir --mode=775 -p #{project_basedir}")
+            Pkg::Util::Net.remote_ssh_cmd(Pkg::Config.distribution_server, "mkdir -p #{artifact_dir}")
+            Pkg::Util::Net.rsync_to("#{local_dir}/", Pkg::Config.distribution_server, "#{artifact_dir}/", extra_flags: ["--ignore-existing", "--exclude repo_configs"])
+          end
 
-      # If we just shipped a tagged version, we want to make it immutable
-      files = Dir.glob("#{local_dir}/**/*").select { |f| File.file?(f) }.map do |file|
-        "#{artifact_dir}/#{file.sub(/^#{local_dir}\//, '')}"
-      end
+          # If we just shipped a tagged version, we want to make it immutable
+          files = Dir.glob("#{local_dir}/**/*").select { |f| File.file?(f) }.map do |file|
+            "#{artifact_dir}/#{file.sub(/^#{local_dir}\//, '')}"
+          end
 
-      Pkg::Util::Net.remote_set_ownership(Pkg::Config.distribution_server, 'root', 'release', files)
-      Pkg::Util::Net.remote_set_permissions(Pkg::Config.distribution_server, '0664', files)
-      Pkg::Util::Net.remote_set_immutable(Pkg::Config.distribution_server, files)
+          Pkg::Util::Net.remote_set_ownership(Pkg::Config.distribution_server, 'root', 'release', files)
+          Pkg::Util::Net.remote_set_permissions(Pkg::Config.distribution_server, '0664', files)
+          Pkg::Util::Net.remote_set_immutable(Pkg::Config.distribution_server, files)
+      end
     end
 
     desc "Ship generated repository configs to the distribution server"
