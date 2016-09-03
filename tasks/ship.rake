@@ -476,6 +476,10 @@ namespace :pl do
 
       case Pkg::Config.cinext_storage
         when 'swift'
+            os = OpenStack::Connection.create({:username => Pkg::Config.swift_username, :api_key => Pkg::Config.swift_api_key,
+                :auth_url => Pkg::Config.swift_auth_url, :service_type =>"object-store"})
+            #TODO - error check connection was successful
+
         else
           puts 'I would have shipped to saturn, but this is testing'
           #Pkg::Util::Execution.retry_on_fail(:times => 3) do

@@ -1,7 +1,7 @@
 source "https://rubygems.org"
 
 group :development, :test do
-  gem "openstack", "2.0.0"
+  gem 'openstack', :git => 'https://github.com/ruby-openstack/ruby-openstack.git', :tag => 'v2.1.0'
   gem "rake", "~> 0.9.6"
   gem "rspec", "~> 2.14.1"
   gem "pry"
