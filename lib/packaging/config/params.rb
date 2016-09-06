@@ -249,7 +249,7 @@ module Pkg::Params
               { :var => :svr4_host,               :envvar => :SVR4_HOST },
               { :var => :svr4_path,               :envvar => :SVR4_PATH },
               { :var => :swift_api_key,           :envvar => :SWIFT_API_KEY },
-              { :var => :swift_auth_url,          :envvar => :SWFIT_AUTH_URL },
+              { :var => :swift_auth_url,          :envvar => :SWIFT_AUTH_URL },
               { :var => :swift_username,          :envvar => :SWIFT_USERNAME },
               { :var => :swix_path,               :envvar => :SWIX_PATH },
               { :var => :tar_host,                :envvar => :TAR_HOST },

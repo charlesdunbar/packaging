@@ -476,9 +476,21 @@ namespace :pl do
 
       case Pkg::Config.cinext_storage
         when 'swift'
+            require 'openstack'
             os = OpenStack::Connection.create({:username => Pkg::Config.swift_username, :api_key => Pkg::Config.swift_api_key,
                 :auth_url => Pkg::Config.swift_auth_url, :service_type =>"object-store"})
             #TODO - error check connection was successful
+            # Make sure the bucket exists - one per project
+            unless os.container_exists?("#{Pkg::Config.project}")
+                puts "Creating #{Pkg::Config.project} bucket"
+                os.create_container("#{Pkg::Config.project}")
+            end
+
+           container = os.container("#{Pkg::Config.project}")
+           Dir.glob("#{local_dir}/*").each do |file|
+                puts "Creating #{Pkg::Config.ref}/#{file.split('/')[1]}"
+                container.create_object("#{Pkg::Config.ref}/#{file.split('/')[1]}", {}, file)
+           end
 
         else
           puts 'I would have shipped to saturn, but this is testing'
