@@ -15,10 +15,23 @@ module Pkg::Rpm::Repo
       end
 
       invoke_task("pl:fetch")
-      repo_dir = "#{Pkg::Config.jenkins_repo_path}/#{Pkg::Config.project}/#{Pkg::Config.ref}/#{target}/rpm"
-      Pkg::Util::Net.remote_ssh_cmd(Pkg::Config.distribution_server, "mkdir -p #{repo_dir}")
-      Pkg::Util::Execution.retry_on_fail(:times => 3) do
-        Pkg::Util::Net.rsync_to("pkg/#{target}/rpm/", Pkg::Config.distribution_server, repo_dir)
+      case Pkg::Config.cinext_storage
+        when 'swift'
+            require 'openstack'
+            os = OpenStack::Connection.create({:username => Pkg::Config.swift_username, :api_key => Pkg::Config.swift_api_key,
+                :auth_url => Pkg::Config.swift_auth_url, :service_type =>"object-store"})
+
+            container = os.container("#{Pkg::Config.project}")
+            Dir.glob("pkg/#{target}/rpm/*").each do |file|
+                puts "Shipping #{Pkg::Config.ref}/rpm/#{file.split('/')[1]}"
+            end
+      else
+        puts "I would have shipped repos to saturn, but this is testing"
+      #repo_dir = "#{Pkg::Config.jenkins_repo_path}/#{Pkg::Config.project}/#{Pkg::Config.ref}/#{target}/rpm"
+      #Pkg::Util::Net.remote_ssh_cmd(Pkg::Config.distribution_server, "mkdir -p #{repo_dir}")
+      #Pkg::Util::Execution.retry_on_fail(:times => 3) do
+      #  Pkg::Util::Net.rsync_to("pkg/#{target}/rpm/", Pkg::Config.distribution_server, repo_dir)
+      #end
       end
     end
 
