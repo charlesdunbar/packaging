@@ -487,9 +487,14 @@ namespace :pl do
             end
 
            container = os.container("#{Pkg::Config.project}")
-           Dir.glob("#{local_dir}/*").each do |file|
-                puts "Creating #{Pkg::Config.ref}/#{file.split('/')[1]}"
-                container.create_object("#{Pkg::Config.ref}/#{file.split('/')[1]}", {}, file)
+           # I only want files, but they can have directory names attached to them.
+           # I don't want just directory names
+           to_ship = Dir.glob("#{local_dir}/**/*").reject do |file|
+                File.directory?(file)
+           end
+            to_ship.each do |file|
+                puts "Creating #{Pkg::Config.ref}/#{file.split('#{local_dir}/')}"
+                container.create_object("#{Pkg::Config.ref}/#{file.split('#{local_dir}/')}", {}, file)
            end
 
         else
