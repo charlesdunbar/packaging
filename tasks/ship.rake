@@ -493,8 +493,8 @@ namespace :pl do
                 File.directory?(file)
            end
             to_ship.each do |file|
-                puts "Creating #{Pkg::Config.ref}/#{file.split('#{local_dir}/')}"
-                container.create_object("#{Pkg::Config.ref}/#{file.split('#{local_dir}/')}", {}, file)
+                puts "Creating #{Pkg::Config.ref}/#{file.split("#{local_dir}/")[1]}"
+                container.create_object("#{Pkg::Config.ref}/#{file.split("#{local_dir}/")[1]}", {}, file)
            end
 
         else
