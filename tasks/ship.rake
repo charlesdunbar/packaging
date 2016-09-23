@@ -476,27 +476,12 @@ namespace :pl do
 
       case Pkg::Config.cinext_storage
         when 'swift'
-            require 'openstack'
-            os = OpenStack::Connection.create({:username => Pkg::Config.swift_username, :api_key => Pkg::Config.swift_api_key,
-                :auth_url => Pkg::Config.swift_auth_url, :service_type =>"object-store"})
-            #TODO - error check connection was successful
-            # Make sure the bucket exists - one per project
-            unless os.container_exists?("#{Pkg::Config.project}")
-                puts "Creating #{Pkg::Config.project} bucket"
-                os.create_container("#{Pkg::Config.project}")
-            end
-
-           container = os.container("#{Pkg::Config.project}")
-           # I only want files, but they can have directory names attached to them.
-           # I don't want just directory names
-           to_ship = Dir.glob("#{local_dir}/**/*").reject do |file|
-                File.directory?(file)
-           end
-            to_ship.each do |file|
-                puts "Creating #{Pkg::Config.ref}/#{file.split("#{local_dir}/")[1]}"
-                container.create_object("#{Pkg::Config.ref}/#{file.split("#{local_dir}/")[1]}", {}, File.open(file))
-           end
-
+          # Connect to Swift
+          os = Pkg::Util::Openstack.connect(Pkg::Config.swift_auth_url, Pkg::Config.swift_username, Pkg::Config.swift_api_key)
+          # Create container if needed
+          Pkg::Util::Openstack.create_container(os, Pkg::Config.project)
+          # Ship data
+          Pkg::Util::Openstack.ship_dir(os, local_dir, Pkg::Config.project, Pkg::Config.ref)
         else
           puts 'I would have shipped to saturn, but this is testing'
           #Pkg::Util::Execution.retry_on_fail(:times => 3) do
