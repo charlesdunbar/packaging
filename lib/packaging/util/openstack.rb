@@ -18,7 +18,7 @@ module Pkg::Util::Openstack
       unless connection.directories.get(project)
         puts "Creating #{project} container"
         # Extra headers to enable static web browsing
-        os.put_container(project, :headers => {'x-container-meta-web-listings' => true, 'x-container-read' => '.r:*,.rlistings'})
+        connection.put_container(project, :headers => {'x-container-meta-web-listings' => true, 'x-container-read' => '.r:*,.rlistings'})
       end
     end
 
