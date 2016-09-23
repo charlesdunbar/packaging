@@ -17,14 +17,9 @@ module Pkg::Rpm::Repo
       invoke_task("pl:fetch")
       case Pkg::Config.cinext_storage
         when 'swift'
-            require 'openstack'
-            os = OpenStack::Connection.create({:username => Pkg::Config.swift_username, :api_key => Pkg::Config.swift_api_key,
-                :auth_url => Pkg::Config.swift_auth_url, :service_type =>"object-store"})
-
-            container = os.container("#{Pkg::Config.project}")
-            Dir.glob("pkg/#{target}/rpm/*").each do |file|
-                puts "Shipping #{Pkg::Config.ref}/rpm/#{file.split('/')[1]}"
-            end
+          os = Pkg::Util::Openstack.connect(Pkg::Config.swift_auth_url, Pkg::Config.swift_username, Pkg::Config.swift_api_key)
+          # Ship rpm folder
+          Pkg::Util::Openstack.ship_dir(os, "pkg/#{target}/rpm/", Pkg::Config.project, Pkg::Config.ref)
       else
         puts "I would have shipped repos to saturn, but this is testing"
       #repo_dir = "#{Pkg::Config.jenkins_repo_path}/#{Pkg::Config.project}/#{Pkg::Config.ref}/#{target}/rpm"
