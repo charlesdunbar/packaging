@@ -1,7 +1,8 @@
 source "https://rubygems.org"
 
 group :development, :test do
-  gem 'openstack', :git => 'https://github.com/ruby-openstack/ruby-openstack.git', :tag => 'v2.1.0'
+  gem 'fog-openstack', :git => 'https://github.com/charlesdunbar/fog-openstack', :ref => 'edae4609b278831d4e5d321d95d16239c4652b46'
+  gem 'mime-types'
   gem "rake", "~> 0.9.6"
   gem "rspec", "~> 2.14.1"
   gem "pry"
